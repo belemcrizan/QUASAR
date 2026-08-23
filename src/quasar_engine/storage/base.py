@@ -9,10 +9,13 @@ from typing import Any
 
 class ArtifactStore(ABC):
     @abstractmethod
+    def write_text(self, relative_path: str, text: str) -> Path:
+        raise NotImplementedError
+
+    @abstractmethod
     def write_json(self, relative_path: str, payload: Any) -> Path:
         raise NotImplementedError
 
     @abstractmethod
     def write_jsonl(self, relative_path: str, rows: list[Any]) -> Path:
         raise NotImplementedError
-

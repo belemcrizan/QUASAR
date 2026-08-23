@@ -1,31 +1,45 @@
-# Como contribuir
+# Contributing
 
-## Antes do código
+## Before code
 
-Abra uma questão com hipótese, domínio, dados, métrica, baseline e risco de vazamento temporal. Mudanças que apenas melhoram um seed não devem entrar.
+Open an issue describing the hypothesis, domain, dataset, temporal split, metrics, baselines, and leakage risk. A change that improves only one observed seed should not be merged as a research improvement.
 
-## Padrão local
+## Local checks
 
-```bash
+~~~bash
 python -m pip install -e ".[dev]"
 python -m compileall -q src tests scripts experiments
 python -m unittest discover -s tests -v
 ruff check .
 ruff format --check .
-```
+~~~
 
-## Regras
+## Rules
 
-- preserve a API pública em `quasar_engine.__init__`;
-- mantenha adapters fora do core;
-- não use `target_future` em background, dinâmica, detector ou forecast;
-- adicione teste para cada correção;
-- fixe seed e registre configuração;
-- reporte falhas e resultados negativos;
-- não use linguagem causal sem desenho causal apropriado;
-- dependências obrigatórias precisam de justificativa.
+- preserve the public API in quasar_engine.__init__;
+- keep adapters outside the core;
+- never use target_future in background, dynamics, emergence, or raw forecast;
+- add a test for every defect fix;
+- record seeds, dataset versions, configurations, and hardware;
+- preserve failed predictions and negative results;
+- use causal language only with an appropriate causal design;
+- justify mandatory dependencies;
+- keep research-study orchestration separate from DiscoveryPipeline;
+- do not add agents to the quantitative critical path.
 
-## Commits sugeridos
+## Research pull requests
 
-Use mensagens como `feat: add PELT baseline`, `fix: prevent temporal leakage` ou `docs: explain conformal coverage`.
+A research PR should include:
+
+1. hypothesis and rejection criterion;
+2. baseline and ablation plan;
+3. unchanged test protocol;
+4. repeated-seed results;
+5. compute and memory impact;
+6. limitations and negative results;
+7. report artifacts or deterministic commands.
+
+## Commit examples
+
+Use messages such as feat: add PELT baseline, fix: prevent temporal leakage, research: add 30-seed report, or docs: clarify IEEE-CIS target semantics.
 

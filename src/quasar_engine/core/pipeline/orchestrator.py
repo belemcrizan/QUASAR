@@ -14,7 +14,10 @@ from quasar_engine.core.contract.hypothesis import Hypothesis
 from quasar_engine.core.contract.observation import Observation
 from quasar_engine.core.dynamics import DynamicalEvidence, InformationDynamicsEngine
 from quasar_engine.core.emergence import EmergenceDetector, EmergenceScore
-from quasar_engine.core.forecast.probabilistic import LogisticEmergenceForecaster
+from quasar_engine.core.forecast.probabilistic import (
+    EnsembleEmergenceForecaster,
+    LogisticEmergenceForecaster,
+)
 from quasar_engine.core.pipeline.config import PipelineConfig
 from quasar_engine.core.pipeline.hooks import NullHook, PipelineHook
 
@@ -60,10 +63,16 @@ class DiscoveryPipeline:
         self.detector = EmergenceDetector(
             self.config.detector.weights, self.config.detector.threshold
         )
-        self.forecaster = LogisticEmergenceForecaster(
-            threshold=self.config.detector.threshold,
-            slope=self.config.forecast.slope,
-        )
+        if self.config.forecast.method == "ensemble":
+            self.forecaster = EnsembleEmergenceForecaster(
+                threshold=self.config.detector.threshold,
+                slopes=self.config.forecast.ensemble_slopes,
+            )
+        else:
+            self.forecaster = LogisticEmergenceForecaster(
+                threshold=self.config.detector.threshold,
+                slope=self.config.forecast.slope,
+            )
         history_size = max(bg.window, 2 * self.config.dynamics.recent_window + 2)
         self._history: dict[str, deque[Observation]] = defaultdict(
             lambda: deque(maxlen=history_size)
@@ -102,7 +111,7 @@ class DiscoveryPipeline:
                     lower=max(0.0, probability - uncertainty),
                     upper=min(1.0, probability + uncertainty),
                     horizon_steps=self.config.forecast.horizon_steps,
-                    method="logistic-emergence-v0",
+                    method=f"{self.config.forecast.method}-emergence-v0.2",
                     calibrated=False,
                 )
                 record = ScoredObservation(observation, emergence, forecast, candidate, hypothesis)

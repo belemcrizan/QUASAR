@@ -1,0 +1,4 @@
+time,flux,flux_err,label,curve_id
+0.0,1.0,0.01,0,K42
+0.5,0.92,0.02,1,K42
+

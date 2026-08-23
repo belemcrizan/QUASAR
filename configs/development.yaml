@@ -17,10 +17,12 @@ detector:
     regime_change: 0.10
 forecast:
   horizon_steps: 4
+  method: logistic
   slope: 9.0
+  ensemble_slopes: [5.0, 9.0, 15.0]
   conformal_coverage: 0.90
 validation:
+  calibration_method: temperature
   calibration_fraction: 0.20
   test_fraction: 0.25
   calibration_bins: 10
-

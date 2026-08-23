@@ -1,8 +1,8 @@
-# Referência da API Python
+# Python and API reference
 
-## Uso mínimo
+## Minimal Python use
 
-```python
+~~~python
 from quasar_engine import DiscoveryPipeline, Observation
 
 observations = [
@@ -16,31 +16,45 @@ observations = [
 ]
 
 output = DiscoveryPipeline().process(observations)
-```
+~~~
 
-O pipeline precisa de warm-up; uma única observação não gera forecast.
+The pipeline requires warm-up; one observation does not produce a forecast.
 
-## Objetos públicos
+## Public objects
 
-- `Observation`: contrato de entrada.
-- `Relation`: relação opcional entre entidades.
-- `Candidate` e `Evidence`: candidato rastreável.
-- `Hypothesis`: afirmação estrutural, evidências e critério de rejeição.
-- `Forecast`: probabilidade, intervalo e horizonte.
-- `PipelineConfig`: configuração tipada.
-- `DiscoveryPipeline`: orquestrador local stateful.
-- `PipelineOutput`: observações pontuadas, candidatos e hipóteses.
+- Observation and Relation: common input contract.
+- Candidate and Evidence: traceable statistical candidate.
+- Hypothesis: structural statement, evidence, prediction, and rejection criterion.
+- Forecast: probability, interval, horizon, and method.
+- PipelineConfig: typed configuration.
+- DiscoveryPipeline: local stateful orchestrator.
+- PipelineOutput: scored observations, candidates, and hypotheses.
 
-## Configuração por YAML
+## YAML configuration
 
-```python
+~~~python
 from quasar_engine import DiscoveryPipeline, PipelineConfig
 
 config = PipelineConfig.from_yaml("configs/base.yaml")
 pipeline = DiscoveryPipeline(config)
-```
+~~~
 
-## REST opcional
+Detector threshold, forecast horizon, logistic or ensemble forecast method, and calibration method are explicit configuration values.
 
-`POST /detect` recebe `{"observations": [...]}` e cria um pipeline novo por requisição. Isso evita estado compartilhado na POC, mas não é uma arquitetura de streaming. `GET /health` retorna status e versão.
+## Research functions
+
+The quasar_engine.research module exposes:
+
+- run_multiseed;
+- run_calibration_study;
+- run_ablation_study;
+- run_scalability_study.
+
+quasar_engine.experiment exposes run_domain for registered synthetic data and run_observations for labeled Observation records.
+
+## REST API
+
+POST /detect receives an observations array and creates a new pipeline per request. GET /health returns status and version.
+
+A pipeline per request avoids shared mutable state in the POC but is not a streaming architecture. The REST surface does not perform temporal calibration because labels are not available operationally.
 

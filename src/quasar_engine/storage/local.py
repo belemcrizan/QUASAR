@@ -58,10 +58,13 @@ class LocalArtifactStore(ArtifactStore):
         text = json.dumps(payload, default=_json_default, indent=2, sort_keys=True, ensure_ascii=False)
         return self._atomic_text(target, text + "\n")
 
+    def write_text(self, relative_path: str, text: str) -> Path:
+        target = self._target(relative_path)
+        return self._atomic_text(target, text.rstrip() + "\n")
+
     def write_jsonl(self, relative_path: str, rows: list[Any]) -> Path:
         target = self._target(relative_path)
         text = "\n".join(
             json.dumps(row, default=_json_default, sort_keys=True, ensure_ascii=False) for row in rows
         )
         return self._atomic_text(target, text + ("\n" if rows else ""))
-

@@ -1,0 +1,4 @@
+TransactionID,TransactionDT,TransactionAmt,dist1,isFraud
+1,10,125.5,2.0,0
+2,20,900.0,,1
+

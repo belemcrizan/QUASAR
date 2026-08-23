@@ -10,8 +10,12 @@ __pycache__/
 build/
 dist/
 runs/
+data/raw/
+data/ieee-cis/
+data/nasa/
+data/processed/*.jsonl
+data/processed/*.csv
 experiments/**/results.json
 experiments/**/artifacts/*
 !experiments/**/artifacts/.gitkeep
 .ipynb_checkpoints/
-

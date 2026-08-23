@@ -1,52 +1,70 @@
-# Arquitetura
+# Architecture
 
-## Princípios
+## Design principles
 
-1. **Core independente do domínio.** Adapters traduzem dados; não alteram a matemática.
-2. **Sem vazamento temporal.** O ponto atual é pontuado antes de entrar no background.
-3. **Evidência antes da narrativa.** Candidatos guardam as contribuições numéricas.
-4. **Probabilidade antes da certeza.** Forecasts têm calibração e intervalos.
-5. **Falsificação automática.** O futuro separado testa a previsão.
-6. **Integração por bordas.** CLI, API e storage dependem do core; o core não depende deles.
+1. **Domain-independent core.** Adapters translate records; they do not rewrite the mathematics.
+2. **Past-only scoring.** The current observation is scored before it updates the background.
+3. **Evidence before narrative.** Candidates preserve numerical contributions.
+4. **Probability before certainty.** Forecasts are calibrated and accompanied by intervals.
+5. **Automated falsification.** Chronologically held-out observations test forecasts.
+6. **Research separation.** Multi-seed, calibration, ablation, and scale studies wrap the core.
+7. **Integration at the edges.** CLI, API, reports, and storage depend on the core; the core does not depend on them.
 
-## Fluxo detalhado
+## Runtime flow
 
-```mermaid
+~~~mermaid
 flowchart TD
-    A["Registro bruto"] --> B["Adapter"]
-    B --> C["Observation"]
-    C --> D["Background rolling"]
-    C --> E["Janelas de dinâmica"]
-    D --> F["Resíduos robustos"]
+    A["Raw domain record"] --> B["Domain adapter"]
+    B --> C["Observation contract"]
+    C --> D["Past-only background"]
+    C --> E["Information dynamics"]
+    D --> F["Robust residuals"]
     E --> G["H, I, JS, change, regime"]
     F --> H["Evidence fusion"]
     G --> H
-    H --> I["Candidate / Hypothesis"]
+    H --> I["Candidate + structural hypothesis"]
     H --> J["Raw probability"]
-    J --> K["Past calibration"]
-    K --> L["Held-out test"]
-```
+    J --> K["Chronological calibration"]
+    K --> L["Held-out evaluation"]
+~~~
 
-## Dependências permitidas
+## Research wrapper
 
-O core usa somente NumPy, Pydantic e PyYAML. FastAPI e Uvicorn são extras opcionais. Isso reduz instalação, superfície de falha e acoplamento a cloud.
+~~~mermaid
+flowchart TD
+    A["Fixed protocol"] --> B["Multi-seed study"]
+    A --> C["Calibration study"]
+    A --> D["Ablation study"]
+    A --> E["Scalability study"]
+    B --> F["JSON + Markdown reports"]
+    C --> F
+    D --> F
+    E --> F
+~~~
 
-## Estado e streaming
+## State and streaming
 
-`DiscoveryPipeline` mantém uma janela por `source_id`. `background.score()` é chamado antes de `background.update()`. Essa separação explícita protege contra o uso acidental do ponto atual como parte do comportamento esperado.
+DiscoveryPipeline keeps a bounded history for each source_id. Background score is called before background update, preventing the current point from silently entering its own baseline.
 
-Em produção, o estado poderá migrar para Redis, banco de séries, streaming state store ou serviço gerenciado. O contrato não define fornecedor.
+A future production implementation may persist state in a stream processor, database, or managed state store. No provider is part of the core contract.
 
-## Complexidade
+## Complexity
 
-Para `F` features, janela `W` e `N` observações, a implementação atual é aproximadamente `O(N × (F×W + F²×W))`; pares de informação mútua são limitados às primeiras quatro features. O armazenamento por fonte é limitado pela janela configurada. Benchmarks reais ainda devem testar cardinalidade de fontes e missing data.
+For F features, window W, and N observations, the current implementation is approximately O(N × (F×W + F²×W)). Mutual-information pairs are capped at the first four features. Per-source history is bounded.
 
-## Extensões planejadas
+The current pipeline returns all scored observations, so the one-million-row study may be memory constrained. The scale command intentionally requires explicit confirmation above 100,000 rows; streaming output is a future engineering improvement.
 
-- Backgrounds: ARIMA, modelos boosting e ensembles.
-- Dinâmica: PELT, change point Bayesiano e HMM.
-- Baselines: Isolation Forest, autoencoders e modelos específicos do domínio.
-- Storage: S3/GCS/Azure e PostgreSQL.
-- Operação: autenticação, filas, idempotência, tracing, SLOs e revisão de segurança.
-- Agentes: investigação e crítica somente depois dos gates quantitativos.
+## Dependency boundary
+
+The mandatory runtime uses NumPy, Pydantic, and PyYAML. FastAPI and Uvicorn are optional. Platt scaling, isotonic regression, and the compact Isolation Forest baseline are implemented without adding scikit-learn to the required runtime.
+
+## Future extensions
+
+- PELT and Bayesian change-point detection;
+- maintained-library benchmark parity for Isolation Forest;
+- conventional forecasting and domain-specific baselines;
+- streaming state and incremental artifact writing;
+- cloud storage and SQL metadata adapters;
+- authentication, idempotency, tracing, SLOs, and security review;
+- governed investigation agents only after quantitative gates pass.
 

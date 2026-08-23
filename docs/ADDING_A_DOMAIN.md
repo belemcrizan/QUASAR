@@ -1,40 +1,52 @@
-# Como adicionar um domínio
+# Adding a domain
 
-## 1. Defina a pergunta
+## 1. Define the question
 
-Escreva qual evento futuro é previsto, qual horizonte é legítimo e qual decisão humana será apoiada. Não comece pelas features.
+Write the future event, legitimate horizon, unit of observation, source boundary, and human decision the system will support. Do not begin with features.
 
-## 2. Copie o template
+## 2. Start from the template
 
-Use `src/quasar_engine/adapters/template/adapter.py`. O adapter deve converter cada registro em `Observation` sem importar módulos internos do detector.
+Use src/quasar_engine/adapters/template/adapter.py. The adapter must convert each domain record into Observation without importing detector internals.
 
-## 3. Mapeie os campos
+## 3. Map the contract
 
-- `timestamp`: momento real da observação;
-- `source_id`: fluxo/sensor/sistema que compartilha background;
-- `entity_id`: entidade opcional;
-- `features`: somente números finitos nesta POC;
-- `relations`: relações conhecidas opcionais;
-- `context`: metadados não usados como rótulo oculto;
-- `target_future`: rótulo opcional, exclusivo de avaliação.
+- timestamp: when the observation became available;
+- source_id: stream, sensor, or system sharing one background;
+- entity_id: optional observed entity;
+- features: finite numeric values in the current POC;
+- relations: optional known relationships;
+- context: metadata that cannot act as a hidden label;
+- target_future: optional evaluation-only label.
 
-## 4. Valide o arquivo
+## 4. Preserve target semantics
 
-```bash
+Document whether target_future means a current class, an event inside a future window, a regime transition, or another outcome. Do not report lead time from a current-row classification label.
+
+## 5. Validate data
+
+~~~bash
 quasar validate-data --input observations.jsonl
-```
+~~~
 
-## 5. Execute sem rótulos primeiro
+## 6. Score without labels
 
-```bash
-quasar run --input observations.jsonl --output-dir runs/my_domain
-```
+~~~bash
+quasar run --input observations.jsonl --output-dir runs/my-domain
+~~~
 
-## 6. Registre o experimento
+## 7. Register evaluation
 
-Adicione configuração, versão/checksum do dataset, seed, horizonte, baselines, métricas e critérios de interrupção em `experiments/`.
+Add dataset version, license, checksum, seed set, horizon, baselines, metrics, and stopping criteria under experiments.
 
-## 7. Teste independência do core
+~~~bash
+quasar evaluate-data --input labeled_observations.jsonl --domain my-domain --data-name dataset_v1
+~~~
 
-O novo adapter pode fazer feature engineering específico, mas não deve duplicar `core/`. Se a matemática precisa mudar, trate isso como nova hipótese e execute ablation nos domínios anteriores.
+## 8. Test core independence
+
+Domain-specific feature engineering belongs in the adapter. Do not copy core modules. If the mathematics must change, register that change as a new hypothesis and rerun previous-domain ablations.
+
+## 9. Measure transfer
+
+Report unchanged core code, adapter lines and complexity, feature requirements, calibration shift, metric degradation, and compute change. Architecture reuse alone is not scientific generalization.
 

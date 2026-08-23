@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-.PHONY: install test check demo demo-fraud demo-astronomy ablation serve
+.PHONY: install test check demo demo-fraud demo-astronomy benchmark ablation calibration scale serve
 
 install:
 	$(PYTHON) -m pip install -e .
@@ -22,8 +22,16 @@ demo-astronomy:
 	$(PYTHON) -m quasar_engine.cli.main demo --domain astronomy --points 360 --seed 42
 
 ablation:
-	$(PYTHON) scripts/run_ablation.py --domain all --points 360 --seed 42
+	$(PYTHON) -m quasar_engine.cli.main ablate --domain all --points 360 --seed 42
+
+benchmark:
+	$(PYTHON) -m quasar_engine.cli.main benchmark --domain all --points 360 --seeds 30
+
+calibration:
+	$(PYTHON) -m quasar_engine.cli.main calibrate --domain all --points 360 --seed 42
+
+scale:
+	$(PYTHON) -m quasar_engine.cli.main scale --domain fraud --sizes 1000,10000 --repeats 3
 
 serve:
 	$(PYTHON) -m quasar_engine.cli.main serve --host 127.0.0.1 --port 8000
-

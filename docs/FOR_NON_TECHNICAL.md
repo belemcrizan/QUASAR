@@ -1,25 +1,31 @@
-# QUASAR sem matemática
+# QUASAR without mathematics
 
-## A analogia do telescópio
+## The telescope analogy
 
-Um astrônomo raramente conclui algo importante olhando um único ponto brilhante. Primeiro entende o ruído do instrumento e o brilho de fundo. Depois compara várias observações, mede se a mudança persiste e prevê o que deveria aparecer a seguir. Uma nova observação confirma, enfraquece ou rejeita a hipótese.
+Astronomers rarely conclude something important from one bright point. They first estimate instrument noise and background light. They compare observations, measure whether a change persists, predict what should appear next, and use new observations to support or weaken the hypothesis.
 
-O QUASAR aplica esse método a universos de dados. Em fraude, pequenas mudanças de valor, velocidade e rede podem se organizar juntas. Em astronomia, fluxo, cor e espectro podem começar a mudar antes de um transiente.
+QUASAR applies that method to data streams. In fraud, value, velocity, counterparty, and network signals may shift together. In astronomy, flux and spectral signals may change before a transient event.
 
-## O que sai do sistema
+## What the system produces
 
-- **Candidato:** “há uma organização incomum aqui”.
-- **Evidências:** quais medidas contribuíram e com qual intensidade.
-- **Probabilidade:** chance estimada de um evento dentro do horizonte definido.
-- **Intervalo:** faixa que expressa incerteza.
-- **Hipótese testável:** o que deve acontecer para a ideia sobreviver.
-- **Critério de rejeição:** o que faria a hipótese perder força.
+- **Candidate:** an unusual organization of evidence.
+- **Evidence:** the numerical measurements that contributed.
+- **Probability:** the estimated chance of an event within a defined horizon.
+- **Interval:** a range that expresses uncertainty.
+- **Testable hypothesis:** what should happen next if the candidate is useful.
+- **Rejection criterion:** what would weaken or reject the hypothesis.
 
-## O que ele não decide
+## What it does not decide
 
-Um candidato não é automaticamente fraude, falha, tendência ou descoberta científica. Especialistas do domínio ainda precisam verificar dados, explicações alternativas, impacto e regras aplicáveis.
+A candidate is not automatically fraud, failure, a trend, or a scientific discovery. Domain specialists must examine data quality, alternative explanations, impact, and applicable rules.
 
-## Como saber se funciona
+## How the POC is tested
 
-Parte dos dados fica escondida do processo de calibração. O motor faz previsões e só depois os resultados futuros são revelados. Métricas medem discriminação, falsos positivos, qualidade das probabilidades e antecedência. Métodos simples são executados como comparação.
+Some observations are used only to establish the background. A later chronological section calibrates probabilities. The final section remains held out until evaluation.
+
+QUASAR measures discrimination, false positives, probability quality, empirical coverage, early-warning lead time, and compute cost. It compares the full pipeline with simpler alternatives and preserves negative results.
+
+## Why multiple seeds matter
+
+A single successful run may be luck. The multi-seed command repeats the exact protocol with different random streams, then reports the mean, variability, and a 95% confidence interval. Real datasets are still required before real-world claims can be made.
 

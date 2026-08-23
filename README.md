@@ -2,212 +2,258 @@
 
 **Quantified Uncertainty Analysis for Signals, Anomalies, and Regimes**
 
-QUASAR é uma primeira prova de conceito local para descobrir mudanças emergentes em séries de dados. O nome vem dos quasares: objetos astrofísicos muito distantes cuja estrutura é inferida combinando observações, ruído, incerteza e evidências acumuladas.
+QUASAR is a local, domain-agnostic research POC for detecting weak, jointly emerging signals, producing probabilistic forecasts, and testing those forecasts on chronologically held-out data.
 
-> Em uma frase: o sistema aprende o comportamento esperado, combina pequenos desvios, cria candidatos, estima probabilidades e deixa dados futuros testarem se a previsão se sustentou.
+The name refers to quasars: distant astrophysical objects whose structure is inferred by separating background, noise, uncertainty, and accumulated evidence.
 
-## Para quem não é técnico
+> Learn the expected background, measure how information structure changes, fuse independent evidence, forecast what should happen next, and let future data weaken or support the hypothesis.
 
-Imagine um telescópio apontado para dados. Um ponto diferente pode ser apenas ruído. Vários sinais pequenos mudando juntos podem indicar algo que merece investigação. O QUASAR:
+## Project status
 
-1. observa como o sistema normalmente se comporta;
-2. mede mudanças em distribuições, dependências e regimes;
-3. combina essas evidências em uma pontuação rastreável;
-4. produz uma previsão probabilística;
-5. compara a previsão com dados futuros que estavam separados;
-6. registra acertos e erros.
+**Version:** 0.2.0 research POC  
+**Runtime:** local Python; no API key, database, cloud account, or LLM required  
+**Critical path:** deterministic numerical/statistical components only  
+**Claims:** no causal discovery, real-world superiority, scientific novelty, patentability, or production readiness
 
-Ele não afirma automaticamente “isto é fraude”, “isto é uma descoberta astronômica” ou “isto foi causado por X”. Ele aponta candidatos que precisam de validação.
+QUASAR is intentionally positioned between a toy prototype and a research-ready system. It has a complete and testable workflow, but real datasets, stronger baselines, repeated seeds, and external validation are required before a paper-level claim.
 
-## O que esta POC entrega
+## Plain-language explanation
 
-| Camada | Implementado agora | Limite assumido |
-|---|---|---|
-| Contrato comum | Observações, evidências, candidatos, hipóteses e previsões com validação Pydantic | Somente features numéricas na primeira versão |
-| Background | Média/desvio ou mediana/MAD incremental por fonte | Ainda sem ARIMA, Prophet, LightGBM ou XGBoost |
-| Dinâmica informacional | Entropia, informação mútua, Jensen-Shannon, mudança de média e variância | Estimadores leves para POC, não estado da arte final |
-| Emergência | Fusão ponderada transparente e boost por evidências convergentes | Pesos fixos, sujeitos a ablation e otimização futura |
-| Forecast | Probabilidade logística, temperature scaling e intervalo split-conformal | Intervalos binários podem ser largos em amostras pequenas |
-| Falsificação | Ordem temporal, calibração passada e teste futuro separado | Dados sintéticos não validam desempenho no mundo real |
-| Domínios | Fraude/surveillance e astronomia sintéticas | Nenhum dataset real é incluído |
-| Operação | CLI, artefatos locais, Docker, API REST opcional | Sem autenticação, fila, banco ou cloud na POC |
-| Agentes | Contrato de governança documentado | Nenhum LLM participa do caminho crítico |
+Imagine a telescope pointed at a large universe of data. One unusual point may be noise. Several small changes that appear together and persist may deserve investigation.
 
-## Resultado de referência reproduzível
+QUASAR:
 
-Execução: `360` pontos, seed `42`, configuração padrão, máquina local usada na construção.
+1. learns what normal behavior looks like from past observations;
+2. measures changes in distributions, dependencies, entropy, and regimes;
+3. combines those measurements into a traceable emergence score;
+4. produces a probability for an event within a defined horizon;
+5. calibrates that probability using a later chronological slice;
+6. reveals a final held-out slice and records both successes and failures.
 
-| Domínio | AUPRC | AUROC | Brier | ECE | Coverage | Lead time médio |
-|---|---:|---:|---:|---:|---:|---:|
-| Fraude sintética | 0,664 | 0,935 | 0,055 | 0,091 | 0,929 | 1,67 passos |
-| Astronomia sintética | 0,759 | 0,957 | 0,047 | 0,097 | 0,881 | 3,33 passos |
+A candidate is not automatically fraud, failure, a market event, or an astronomical discovery. It is a statistical structure that deserves domain review.
 
-Leitura honesta: a fusão apresentou Brier menor e menos falsos positivos que o baseline somente por resíduo, mas esse baseline teve AUPRC e recall maiores. Isso é complementaridade e trade-off, não superioridade geral. A cobertura astronômica ficou ligeiramente abaixo dos 90% solicitados nesta amostra finita. Esses resultados são evidência de funcionamento da POC, não evidência científica em dados reais.
+## What v0.2.0 adds
 
-## Início rápido
+| Research capability | Implementation |
+|---|---|
+| Multi-seed stability | Mean, sample standard deviation, and normal-approximation 95% confidence intervals |
+| Calibration study | Temperature scaling, Platt scaling, and isotonic regression |
+| Classical anomaly baseline | Dependency-free Isolation Forest baseline |
+| Ablation study | Residual-only/no-fusion and leave-one-evidence-out variants |
+| Scalability study | Configurable 10^3 to 10^6 observation runs, with a safety gate above 10^5 |
+| Forecast variants | Configurable horizon and logistic/ensemble forecast mapping |
+| Threshold experiments | CLI and YAML detector-threshold overrides |
+| Real-data path | Local IEEE-CIS transaction CSV and NASA/MAST light-curve CSV conversion |
+| Reporting | JSON, JSONL, and consolidated Markdown reports |
+| International documentation | Public documentation and research roadmap in English |
+
+## Quick start
 
 ### Windows PowerShell
 
-```powershell
+~~~powershell
 py -3.13 -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
+python -m pip install --upgrade pip setuptools wheel
 python -m pip install -e .
 quasar demo --domain all --points 360 --seed 42
-```
+~~~
 
-### Linux ou macOS
+If OneDrive or antivirus slows virtual-environment creation, place the environment outside the synchronized project folder:
 
-```bash
+~~~powershell
+$venv = "$env:LOCALAPPDATA\quasar-venv"
+py -3.13 -m venv $venv
+& "$venv\Scripts\Activate.ps1"
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e .
+quasar demo --domain all --points 360 --seed 42
+~~~
+
+### Linux or macOS
+
+~~~bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
+python -m pip install --upgrade pip setuptools wheel
 python -m pip install -e .
 quasar demo --domain all --points 360 --seed 42
-```
+~~~
 
-Não é preciso criar `.env`, fornecer chave de API, conectar banco ou ter acesso à internet depois que as dependências Python estiverem instaladas.
+## Research commands
 
-Saída esperada:
+### Reproduce the two synthetic domains
 
-```text
-QUASAR POC completed
-- fraud: candidates=..., AUPRC=..., Brier=..., ECE=..., coverage=...
-- astronomy: candidates=..., AUPRC=..., Brier=..., ECE=..., coverage=...
-Artifacts: .../runs/demo
-```
+~~~bash
+quasar demo --domain all --points 360 --seed 42
+~~~
 
-## Arquivos gerados
+### Run 30 seeds and document variance
 
-Cada domínio recebe uma pasta com:
+~~~bash
+quasar benchmark --domain all --points 360 --seeds 30 --seed-start 0
+~~~
 
-- `results.json`: métricas, baselines, comparações e indicadores GO/NO-GO;
-- `run_manifest.json`: seed, versão, plataforma e hash da configuração;
-- `predictions.jsonl`: probabilidades brutas/calibradas, intervalos, partição temporal e rótulo revelado;
-- `candidates.jsonl`: candidatos e evidências quantitativas;
-- `hypotheses.jsonl`: hipótese estrutural, previsão testável e critério de rejeição.
+Generated files:
 
-Os rótulos aparecem nos artefatos somente para avaliação. O teste `test_labels_cannot_change_predictions` comprova que eles não entram no caminho de detecção.
+- multiseed.json: aggregate statistics;
+- runs.jsonl: every seed and run ID;
+- report.md: international, human-readable summary.
 
-## Arquitetura da POC
+### Compare calibration methods
 
-```mermaid
+~~~bash
+quasar calibrate --domain all --points 360 --seed 42 --methods temperature,platt,isotonic
+~~~
+
+The ECE target is below 0.05, but ECE must be interpreted together with Brier score, log loss, discrimination, coverage, and stability across seeds.
+
+### Run evidence ablations
+
+~~~bash
+quasar ablate --domain all --points 360 --seed 42
+~~~
+
+Registered variants include full fusion, residual-only/no-fusion, and leave-one-evidence-out tests for entropy, mutual information, Jensen-Shannon divergence, change-point, and regime evidence.
+
+### Test scalability
+
+Start with a safe local study:
+
+~~~bash
+quasar scale --domain fraud --sizes 1000,10000,100000 --repeats 3
+~~~
+
+The one-million-observation experiment is explicit and opt-in:
+
+~~~bash
+quasar scale --domain fraud --sizes 1000,10000,100000,1000000 --repeats 3 --confirm-large
+~~~
+
+The large run can consume substantial memory and time. Run it on controlled hardware and record the environment.
+
+### Test alternative forecasts and thresholds
+
+~~~bash
+quasar demo --domain all --forecast-method ensemble --horizon 8 --threshold 0.38 --calibration-method platt
+~~~
+
+## Real-data integration
+
+QUASAR never downloads or redistributes third-party datasets automatically.
+
+### IEEE-CIS Fraud Detection
+
+Download train_transaction.csv from Kaggle under its applicable terms, then convert it:
+
+~~~bash
+quasar prepare-data --dataset ieee-cis --input data/ieee-cis/train_transaction.csv --output data/processed/ieee_cis.jsonl --max-rows 100000
+quasar validate-data --input data/processed/ieee_cis.jsonl
+quasar evaluate-data --input data/processed/ieee_cis.jsonl --domain fraud --data-name ieee_cis
+~~~
+
+Important: isFraud is a current-row classification label, not a true future-horizon label. This integration tests portability and discrimination; it must not be presented as an early-warning lead-time experiment.
+
+### NASA/MAST light curves
+
+Prepare a local CSV with time and flux; optional columns are flux_err, quality, label, and curve_id.
+
+Use the NASA Exoplanet Archive for catalog/target metadata and MAST for Kepler or TESS light-curve files when appropriate; record both provenance sources.
+
+~~~bash
+quasar prepare-data --dataset nasa-lightcurve --input data/nasa/kepler_curve.csv --output data/processed/kepler_curve.jsonl --curve-id KIC-EXAMPLE
+~~~
+
+No transit label is inferred by the adapter. The user-supplied label and forecast horizon must be documented before evaluation. See [Real-data protocol](docs/REAL_DATA.md).
+
+## Reference POC result
+
+For 360 points and seed 42, the full pipeline produced:
+
+| Domain | AUPRC | AUROC | Brier | ECE | Coverage |
+|---|---:|---:|---:|---:|---:|
+| Synthetic fraud | 0.664 | 0.935 | 0.055 | 0.069 | 0.929 |
+| Synthetic astronomy | 0.759 | 0.957 | 0.047 | 0.082 | 0.881 |
+
+v0.2.0 applies the same calibration protocol to score-based baselines. Under that fairer comparison, the residual-only baseline is stronger than full fusion on Brier and AUPRC for seed 42. This is an explicit negative result: the current weighted fusion is a transparent POC baseline, not the project's research contribution.
+
+The next research question is whether a learned or theoretically grounded emergence function can outperform that baseline consistently across seeds and real domains.
+
+## Architecture
+
+~~~mermaid
 flowchart TD
-    A["Adapter de domínio"] --> B["Contrato Observation"]
-    B --> C["Background anterior"]
-    B --> D["Dinâmica informacional"]
-    C --> E["Fusão de evidências"]
+    A["Domain adapter"] --> B["Observation contract"]
+    B --> C["Past-only background"]
+    B --> D["Information dynamics"]
+    C --> E["Evidence fusion"]
     D --> E
-    E --> F["Candidato + hipótese estrutural"]
-    E --> G["Previsão probabilística"]
-    G --> H["Calibração + conformal"]
-    H --> I["Teste temporal + baselines"]
-```
+    E --> F["Candidate + structural hypothesis"]
+    E --> G["Probabilistic forecast"]
+    G --> H["Calibration + conformal interval"]
+    H --> I["Held-out test + baselines"]
+~~~
 
-A matemática é compartilhada integralmente pelos dois experimentos. Apenas o adapter e as features mudam.
+The identical core runs across domains. Adapters translate data but do not change the mathematical pipeline.
 
-## Contrato mínimo de entrada
+## Generated artifacts
 
-Um sistema futuro pode produzir um JSON por linha no formato abaixo:
+Each evaluated domain writes results.json, run_manifest.json, predictions.jsonl, candidates.jsonl, hypotheses.jsonl, and report.md.
 
-```json
-{
-  "timestamp": "2026-08-23T14:30:00Z",
-  "source_id": "sensor_A",
-  "entity_id": "entity_42",
-  "features": {"signal_a": 1.4, "signal_b": 0.32},
-  "relations": [],
-  "context": {"domain": "my_domain"},
-  "target_future": null
-}
-```
+The manifest records the seed, package version, Python version, platform, and configuration hash. Failed predictions remain in predictions.jsonl.
 
-Valide e execute dados próprios:
+## Tests
 
-```bash
-quasar validate-data --input observations.jsonl
-quasar run --input observations.jsonl --output-dir runs/my_domain
-```
-
-`target_future` é opcional para uso operacional e só deve existir em treino/avaliação. Consulte [Como adicionar um domínio](docs/ADDING_A_DOMAIN.md).
-
-## Testes
-
-```bash
+~~~bash
 python -m unittest discover -s tests -v
-```
-
-O pacote não exige `pytest`. O benchmark de 1.000 observações é opt-in:
-
-```bash
 RUN_QUASAR_BENCHMARKS=1 python -m unittest tests.benchmarks.test_performance -v
-```
+~~~
 
-## Docker
+## Optional REST API
 
-```bash
-docker compose up --build
-```
-
-Os artefatos ficam em `./runs`. O container é somente leitura, exceto pelo volume de saída e `/tmp`.
-
-## API opcional
-
-A POC funciona sem API. Para expor localmente `/health` e `/detect`:
-
-```bash
+~~~bash
 python -m pip install -e ".[api]"
 quasar serve --host 127.0.0.1 --port 8000
-```
+~~~
 
-Não exponha esta API na internet sem autenticação, limites, isolamento, observabilidade e revisão de segurança.
+Do not expose the POC API publicly without authentication, rate limits, isolation, audit controls, and a security review.
 
-## Regras científicas incorporadas
+## Scientific governance
 
-- ordem temporal obrigatória: background antes, calibração depois, teste futuro por último;
-- rótulos futuros nunca entram no detector;
-- probabilidades, Brier, log-loss, ECE e coverage são registradas;
-- baselines de taxa-base, resíduo e mudança de média são comparados;
-- previsões fracassadas permanecem nos artefatos;
-- hipóteses são estruturais e `causal_claim=false` por padrão;
-- seed, versão, configuração e ambiente são registrados;
-- agentes não podem promover sozinhos um candidato a descoberta.
+- Score the current observation before updating the background.
+- Never use target_future in background, dynamics, emergence, or raw forecasting.
+- Separate hypothesis, experiment, and conclusion.
+- Preserve every seed, configuration, dataset version, parameter, and runtime.
+- Report negative results and failed predictions.
+- Do not call association causality.
+- Do not claim novelty or superiority from synthetic experiments.
+- Keep agents outside the quantitative critical path until the core passes its GO/NO-GO gates.
 
-## Estrutura principal
+## Product and agentic boundaries
 
-```text
-src/quasar_engine/
-├── core/          # contrato, background, dinâmica, emergência, forecast e validação
-├── adapters/      # fraude, astronomia e template de novo domínio
-├── agents/        # protocolo futuro; não executado na POC
-├── storage/       # persistência local + pontos de extensão
-├── monitoring/    # profiling, logs e métricas locais
-├── api/           # superfície REST opcional
-└── cli/           # demo, run, validate-data, show-config e serve
-```
+Market surveillance is the strongest future product wedge because it has a clear regulated pain, audit requirement, human-review workflow, and measurable operational cost. It remains outside the current POC.
 
-## Próximas etapas corretas
+Future agents may investigate candidates, search evidence, formulate testable hypotheses, and challenge explanations. They may not overwrite model probabilities or independently promote a candidate to a discovery.
 
-1. fixar o protocolo e rodar pelo menos 30 seeds;
-2. adicionar datasets públicos reais, com versão, licença e checksum;
-3. incluir Isolation Forest, PELT e um forecasting específico do domínio;
-4. executar ablations e intervalos de confiança entre seeds;
-5. medir escalabilidade em 10³, 10⁴, 10⁵ e 10⁶ observações;
-6. somente depois avaliar agentes investigativos e uma vertical de produto.
+## Documentation
 
-## Documentação
+- [Getting started](docs/GETTING_STARTED.md)
+- [Non-technical guide](docs/FOR_NON_TECHNICAL.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Scientific protocol](docs/SCIENTIFIC_PROTOCOL.md)
+- [Experiments](docs/EXPERIMENTS.md)
+- [Real-data protocol](docs/REAL_DATA.md)
+- [Research roadmap](docs/RESEARCH_ROADMAP.md)
+- [Adding a domain](docs/ADDING_A_DOMAIN.md)
+- [Python/API reference](docs/API_REFERENCE.md)
+- [Product wedge](docs/PRODUCT_WEDGE.md)
+- [Future agentic layer](docs/AGENTIC_LAYER.md)
+- [Limitations](docs/LIMITATIONS.md)
+- [Contributing](docs/CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
+- [Security policy](SECURITY.md)
+- [Citation metadata](CITATION.cff)
 
-- [Guia de início](docs/GETTING_STARTED.md)
-- [Explicação não técnica](docs/FOR_NON_TECHNICAL.md)
-- [Arquitetura](docs/ARCHITECTURE.md)
-- [Protocolo científico](docs/SCIENTIFIC_PROTOCOL.md)
-- [Experimentos e métricas](docs/EXPERIMENTS.md)
-- [Como adicionar um domínio](docs/ADDING_A_DOMAIN.md)
-- [Referência da API Python](docs/API_REFERENCE.md)
-- [Limitações e riscos](docs/LIMITATIONS.md)
-- [Como contribuir](docs/CONTRIBUTING.md)
+## License
 
-## Licença
-
-Apache-2.0. Antes de publicar ou buscar proteção intelectual, faça revisão jurídica e busca de anterioridade; esta licença não é uma conclusão sobre patenteabilidade.
-
+Apache-2.0. The license is not a finding of originality, freedom to operate, or patentability. Complete literature review, prior-art search, and legal review before making intellectual-property claims.

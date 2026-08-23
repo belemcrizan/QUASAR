@@ -21,3 +21,14 @@ class LogisticEmergenceForecaster(ProbabilisticForecaster):
         exponential = math.exp(logit)
         return exponential / (1.0 + exponential)
 
+
+class EnsembleEmergenceForecaster(ProbabilisticForecaster):
+    """Average logistic experts with different sharpness around the same threshold."""
+
+    def __init__(self, threshold: float, slopes: tuple[float, ...]) -> None:
+        if not slopes or any(slope <= 0 for slope in slopes):
+            raise ValueError("ensemble slopes must be positive")
+        self.models = tuple(LogisticEmergenceForecaster(threshold, slope) for slope in slopes)
+
+    def predict_probability(self, score: float) -> float:
+        return sum(model.predict_probability(score) for model in self.models) / len(self.models)

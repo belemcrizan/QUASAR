@@ -29,8 +29,9 @@ class PipelineTests(unittest.TestCase):
                 self.assertGreater(result["candidates"], 0)
                 self.assertIn("calibrated_test", result["metrics"])
                 self.assertTrue((Path(directory) / domain / "results.json").exists())
+                self.assertTrue((Path(directory) / domain / "report.md").exists())
+                self.assertIn("isolation_forest", result["metrics"]["baselines_test"])
 
 
 if __name__ == "__main__":
     unittest.main()
-

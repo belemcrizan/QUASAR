@@ -1,60 +1,84 @@
-# Protocolo científico
+# Scientific protocol
 
-## Pergunta da POC
+## POC question
 
-O mesmo core pode transformar sinais moderados e distribuídos em previsões temporais úteis em dois domínios sintéticos diferentes, com incerteza registrada e sem usar rótulos futuros durante a detecção?
+Can one unchanged core transform moderate, distributed signals into useful temporal forecasts in two synthetic domains, while preserving uncertainty and excluding future labels from detection?
 
-## Hipóteses
+## Registered hypotheses
 
-- H1: a fusão alcança melhor qualidade probabilística que baselines registrados.
-- H2: a mesma implementação central funciona nos dois domínios sem reescrita.
-- H3: a previsão pode produzir lead time positivo para parte dos eventos.
+- **H1:** evidence fusion improves at least one decision-relevant metric over registered baselines.
+- **H2:** the same core transfers across the two domains without code changes.
+- **H3:** calibrated forecasts produce positive lead time for at least some events.
+- **H4:** improvements remain stable across at least 30 seeds.
+- **H5:** a future learned or theoretically grounded emergence function improves over residual-only detection on real and synthetic domains.
 
-Essas hipóteses são testadas apenas na distribuição sintética registrada. Não se transferem automaticamente para fraude real ou astronomia real.
+H1 through H3 are POC hypotheses. H4 and H5 are research-roadmap hypotheses. None imply causality.
 
-## Ordem temporal
+## Chronological protocol
 
-```mermaid
+~~~mermaid
 timeline
-    title Protocolo sem vazamento
-    Warm-up : aprender background somente do passado
-    Predição : pontuar antes de atualizar o estado
-    Calibração : ajustar temperatura em janela posterior
-    Teste : avaliar uma última janela não usada na calibração
-    Relato : guardar sucessos e falhas
-```
+    title Leakage-resistant evaluation
+    Background : learn expected behavior from past observations
+    Prediction : score before updating state
+    Calibration : fit probability mapping on a later slice
+    Test : evaluate the final held-out slice
+    Report : preserve positive and negative outcomes
+~~~
 
-## Métricas
+Default scored-sequence partitions:
 
-- **Brier e log-loss:** qualidade das probabilidades; menor é melhor.
-- **ECE:** distância entre confiança e frequência observada; menor é melhor.
-- **Coverage:** proporção de alvos cobertos pelos intervalos.
-- **AUROC/AUPRC:** ordenação discriminativa; AUPRC é especialmente útil em eventos raros.
-- **Precision/Recall/FPR:** trade-off operacional em threshold 0,5.
-- **Lead time:** antecedência média dos alertas antes do início de episódios.
-- **Tempo, memória e throughput:** viabilidade computacional inicial.
+- pre-calibration history;
+- 20% chronological calibration slice;
+- 25% final held-out test slice.
 
-## Baselines registrados
+## Metrics
 
-1. taxa-base constante aprendida na calibração;
-2. resíduo robusto isolado;
-3. mudança de média isolada.
+| Family | Metrics | Interpretation |
+|---|---|---|
+| Probability quality | Brier, log loss | Lower is better |
+| Calibration | ECE, empirical coverage | ECE lower; coverage compared with target |
+| Discrimination | AUROC, AUPRC | AUPRC is important for rare events |
+| Operational | Precision, recall, FPR, lead time | Threshold and domain dependent |
+| Stability | Mean, standard deviation, 95% CI | Repeated seeds |
+| Compute | p50/p95 runtime, memory, throughput | Local feasibility, not cloud cost |
 
-POC v0.1 ainda precisa adicionar Isolation Forest, PELT, forecasting convencional e um baseline específico por domínio antes de qualquer paper de comparação.
+An ECE below 0.05 is an aspirational target, not a standalone acceptance criterion. Calibration can improve ECE while harming ranking, sharpness, or usefulness.
 
-## Ablation
+## Registered baselines
 
-Execute:
+- constant calibration-slice event rate;
+- robust residual-only score;
+- standardized mean-change score;
+- dependency-free Isolation Forest;
+- future: maintained-library Isolation Forest parity;
+- future: PELT, conventional forecasting, representation models, and domain-specific methods.
 
-```bash
-python scripts/run_ablation.py --domain all --points 360 --seed 42
-```
+All score-based v0.2 baselines use the same chronological calibration method as the full pipeline for a fairer probability comparison.
 
-O script remove uma evidência por vez mantendo seed, dados e protocolo. Para inferência mais sólida, execute no mínimo 30 seeds e reporte média, desvio/IC e todos os resultados.
+## Ablations
 
-## Critérios GO/NO-GO
+The registered ablation study includes:
 
-**GO para a próxima fase** exige ganho consistente contra baselines, calibração aceitável, lead time útil, core compartilhado e custo controlado.
+- full fusion;
+- residual-only/no-fusion;
+- without entropy change;
+- without mutual-information change;
+- without Jensen-Shannon divergence;
+- without change-point evidence;
+- without regime-change evidence.
 
-**NO-GO/reformulação** ocorre se o ganho desaparecer, a calibração falhar repetidamente, o custo crescer sem valor ou cada domínio exigir outro core.
+The current residual-only baseline can outperform full weighted fusion. This negative result is preserved and motivates a better emergence formulation.
+
+## Multi-seed analysis
+
+Run at least 30 seeds. Report every run ID, mean, sample standard deviation, and 95% normal-approximation confidence interval. Do not remove unfavorable seeds.
+
+For publication, consider bootstrap or Student-t intervals, multiple-comparison controls, and pre-registered selection rules.
+
+## GO/NO-GO
+
+Advance the research method when gains are stable across seeds, survive real-data baselines, remain calibratable, provide useful lead time or another measurable advantage, transfer across domains, and fit the compute budget.
+
+Reformulate or stop when gains disappear against simple methods, adapters leak domain logic into the core, calibration remains unstable, cost grows faster than value, or agents produce narratives unsupported by quantitative evidence.
 

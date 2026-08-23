@@ -1,57 +1,66 @@
-# Guia de início
+# Getting started
 
-## Pré-requisitos
+## Requirements
 
-- Python 3.11, 3.12 ou 3.13;
-- aproximadamente 200 MB livres para ambiente e dependências;
-- nenhum banco, chave de API, GPU ou serviço cloud.
+- Python 3.11, 3.12, or 3.13;
+- no database, API key, GPU, or cloud service;
+- approximately 200 MB for the environment and dependencies.
 
-## Instalação no Windows
+## Windows PowerShell
 
-Abra o PowerShell dentro da pasta do projeto:
-
-```powershell
+~~~powershell
 py -3.13 -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
+python -m pip install --upgrade pip setuptools wheel
 python -m pip install -e .
 python -m unittest discover -s tests -v
 quasar demo --domain all --points 360 --seed 42
-```
+~~~
 
-Se a execução de scripts do PowerShell bloquear a ativação, use temporariamente:
+If OneDrive or antivirus makes environment creation unusually slow, create the environment outside the synchronized folder:
 
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
+~~~powershell
+$venv = "$env:LOCALAPPDATA\quasar-venv"
+py -3.13 -m venv $venv
+& "$venv\Scripts\Activate.ps1"
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e .
+~~~
 
-## Instalação no Linux/macOS
+Wait until each command returns to the prompt before running the next one.
 
-```bash
+## Linux or macOS
+
+~~~bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
+python -m pip install --upgrade pip setuptools wheel
 python -m pip install -e .
 python -m unittest discover -s tests -v
 quasar demo --domain all --points 360 --seed 42
-```
+~~~
 
-## Comandos
+## Command map
 
-| Comando | Finalidade |
+| Command | Purpose |
 |---|---|
-| `quasar demo --domain all` | Executa os dois experimentos sintéticos |
-| `quasar demo --domain fraud` | Executa apenas fraude/surveillance |
-| `quasar demo --domain astronomy` | Executa apenas astronomia |
-| `quasar show-config` | Mostra a configuração resolvida |
-| `quasar validate-data --input FILE` | Valida JSONL próprio sem executar o core |
-| `quasar run --input FILE` | Executa o core sobre o contrato comum |
-| `quasar serve` | Inicia a API opcional, se instalada |
+| quasar demo | Run one or both synthetic domains |
+| quasar benchmark | Aggregate repeated seeds and 95% confidence intervals |
+| quasar calibrate | Compare temperature, Platt, and isotonic calibration |
+| quasar ablate | Remove evidence components under a fixed protocol |
+| quasar scale | Measure local runtime, memory, and throughput |
+| quasar prepare-data | Convert supported CSV datasets to Observation JSONL |
+| quasar validate-data | Validate Observation JSONL |
+| quasar run | Score arbitrary Observation JSONL without labels |
+| quasar evaluate-data | Evaluate labeled Observation JSONL temporally |
+| quasar show-config | Print the resolved configuration |
+| quasar serve | Start the optional local REST API |
 
-## Diagnóstico rápido
+## Fast troubleshooting
 
-- `No module named quasar_engine`: confirme que o ambiente está ativado e execute `python -m pip install -e .`.
-- `No module named numpy/pydantic/yaml`: execute `python -m pip install -r requirements/base.txt`.
-- Poucos ou nenhum candidato: use ao menos 100 pontos; o background precisa de warm-up.
-- Métricas diferentes: confirme seed, versão Python, arquivo de configuração e versão do pacote no `run_manifest.json`.
+- Module not found: activate the environment and run python -m pip install -e .
+- quasar command not found: check Get-Command quasar on Windows or which quasar on Unix.
+- Too few scored observations: provide at least 100 rows and allow background warm-up.
+- Different metrics: compare seed, package version, Python version, configuration hash, and platform in run_manifest.json.
+- Large scale run refused: sizes above 100,000 require the explicit --confirm-large flag.
 

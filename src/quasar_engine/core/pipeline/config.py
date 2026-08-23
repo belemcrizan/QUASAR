@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
@@ -40,12 +41,15 @@ class DetectorConfig(BaseModel):
 class ForecastConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
     horizon_steps: int = Field(default=4, ge=1)
+    method: Literal["logistic", "ensemble"] = "logistic"
     slope: float = Field(default=9.0, gt=0.0)
+    ensemble_slopes: tuple[float, ...] = (5.0, 9.0, 15.0)
     conformal_coverage: float = Field(default=0.90, gt=0.5, lt=1.0)
 
 
 class ValidationConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    calibration_method: Literal["temperature", "platt", "isotonic"] = "temperature"
     calibration_fraction: float = Field(default=0.20, gt=0.0, lt=0.5)
     test_fraction: float = Field(default=0.25, gt=0.0, lt=0.5)
     calibration_bins: int = Field(default=10, ge=2, le=50)
@@ -65,4 +69,3 @@ class PipelineConfig(BaseModel):
         with source.open("r", encoding="utf-8") as handle:
             data = yaml.safe_load(handle) or {}
         return cls.model_validate(data)
-
