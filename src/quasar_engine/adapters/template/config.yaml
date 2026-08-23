@@ -1,0 +1,6 @@
+domain: replace_me
+required_fields:
+  - timestamp
+  - source_id
+  - features
+

@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+.coverage
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+build/
+dist/
+runs/
+experiments/**/results.json
+experiments/**/artifacts/*
+!experiments/**/artifacts/.gitkeep
+.ipynb_checkpoints/
+

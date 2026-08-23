@@ -1,0 +1,12 @@
+services:
+  quasar:
+    build: .
+    command: ["demo", "--domain", "all", "--points", "360", "--seed", "42", "--output-dir", "/data/demo"]
+    environment:
+      QUASAR_LOG_LEVEL: INFO
+    volumes:
+      - ./runs:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+

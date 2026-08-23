@@ -1,0 +1,10 @@
+domain: fraud
+generator:
+  points: 360
+  seed: 42
+features:
+  - amount_log
+  - velocity
+  - counterparty_risk
+  - network_density
+

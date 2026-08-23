@@ -1,0 +1,7 @@
+experiment: B
+domain: astronomy
+points: 360
+seed: 42
+core_config: ../../configs/base.yaml
+data: synthetic
+

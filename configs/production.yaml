@@ -1,0 +1,27 @@
+# Reference only. The POC has not passed production acceptance gates.
+background:
+  model: statistical
+  window: 96
+  min_history: 48
+  robust: true
+dynamics:
+  recent_window: 24
+  bins: 12
+detector:
+  threshold: 0.40
+  weights:
+    residual: 0.30
+    entropy_change: 0.10
+    mutual_info_change: 0.12
+    js_divergence: 0.20
+    change_point: 0.18
+    regime_change: 0.10
+forecast:
+  horizon_steps: 4
+  slope: 9.0
+  conformal_coverage: 0.95
+validation:
+  calibration_fraction: 0.20
+  test_fraction: 0.25
+  calibration_bins: 15
+

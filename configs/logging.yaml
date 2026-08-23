@@ -1,0 +1,13 @@
+version: 1
+disable_existing_loggers: false
+formatters:
+  concise:
+    format: "%(levelname)s %(name)s %(message)s"
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: concise
+root:
+  level: INFO
+  handlers: [console]
+

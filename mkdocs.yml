@@ -1,0 +1,16 @@
+site_name: QUASAR Discovery Engine
+site_description: Local POC for weak-signal discovery and temporal falsification
+theme:
+  name: material
+nav:
+  - Início: index.md
+  - Início rápido: GETTING_STARTED.md
+  - Para não técnicos: FOR_NON_TECHNICAL.md
+  - Arquitetura: ARCHITECTURE.md
+  - Protocolo científico: SCIENTIFIC_PROTOCOL.md
+  - Experimentos: EXPERIMENTS.md
+  - Adicionar um domínio: ADDING_A_DOMAIN.md
+  - API Python: API_REFERENCE.md
+  - Limitações: LIMITATIONS.md
+  - Contribuição: CONTRIBUTING.md
+

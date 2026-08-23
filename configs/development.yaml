@@ -1,0 +1,26 @@
+background:
+  model: statistical
+  window: 36
+  min_history: 18
+  robust: true
+dynamics:
+  recent_window: 10
+  bins: 6
+detector:
+  threshold: 0.33
+  weights:
+    residual: 0.30
+    entropy_change: 0.10
+    mutual_info_change: 0.12
+    js_divergence: 0.20
+    change_point: 0.18
+    regime_change: 0.10
+forecast:
+  horizon_steps: 4
+  slope: 9.0
+  conformal_coverage: 0.90
+validation:
+  calibration_fraction: 0.20
+  test_fraction: 0.25
+  calibration_bins: 10
+

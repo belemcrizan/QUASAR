@@ -1,0 +1,10 @@
+domain: astronomy
+generator:
+  points: 360
+  seed: 42
+features:
+  - flux
+  - color_index
+  - spectral_width
+  - local_background
+
